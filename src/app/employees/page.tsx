@@ -74,7 +74,7 @@ export default function EmployeesPage() {
     };
 
     return (
-        <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+        <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', marginBottom: '2.5rem' }}>
                 <div>
                     <h1 style={{ fontSize: '2.25rem', fontWeight: '800', letterSpacing: '-0.025em' }}>Employees</h1>

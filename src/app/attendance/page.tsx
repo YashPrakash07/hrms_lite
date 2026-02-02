@@ -60,7 +60,7 @@ export default function AttendancePage() {
     };
 
     return (
-        <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+        <div>
             {/* ... header code ... */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', marginBottom: '2.5rem' }}>
                 <div>

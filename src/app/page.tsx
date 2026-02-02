@@ -13,7 +13,7 @@ export default async function Home() {
   }));
 
   return (
-    <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+    <div>
       <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
         <div>
           <h1 style={{ fontSize: '2.25rem', fontWeight: '800', color: 'var(--foreground)', letterSpacing: '-0.025em' }}>Dashboard</h1>
