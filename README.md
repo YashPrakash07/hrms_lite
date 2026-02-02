@@ -4,70 +4,52 @@ HRMS Lite is a modern, lightweight Human Resource Management System designed for
 
 ## ✨ Features
 
-- **Modern Dashboard**: Real-time stats on workforce presence and department overviews.
-- **Employee Management**: Full CRUD operations for team members with a sleek hover-reveal action menu.
-- **Attendance Tracking**: Simple, date-based attendance marking for "Present" and "Absent" statuses.
-- **Premium UX**: Smooth page transitions using Framer Motion and a high-end "Glassmorphic" interface.
-- **FastAPI Backend**: A high-performance Python backend with persistent PostgreSQL integration.
+- **Modern Dashboard**: Real-time stats on workforce presence, cumulative attendance rates, and a "Recent Activity" feed.
+- **Employee Management**: Full CRUD operations for team members with a curated "Total Present Days" summary column.
+- **Attendance Tracking**: Smart, date-based attendance marking with immediate feedback and persistence.
+- **Intelligent UI**:
+  - **Skeletons & Empty States**: Robust handling of loading and no-data scenarios for a smooth user journey.
+  - **Global Error Handling**: Integrated error boundaries to capture and recover from backend failures gracefully.
+  - **Premium UX**: Glassmorphic interface with Framer Motion animations and a persistent "HR Admin" sidebar.
+- **Full-Stack Performance**: Fast and scalable Python backend paired with a type-safe Next.js frontend.
 
 ## 🛠️ Tech Stack
 
 ### **Frontend**
 
-- **Framework**: Next.js (App Router)
+- **Framework**: Next.js 14+ (App Router)
 - **Language**: TypeScript
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
-- **Styling**: Vanilla CSS (Premium Slate & Indigo Theme)
+- **Testing**: Jest & React Testing Library
+- **Styling**: Modern Vanilla CSS (Custom Design System)
 
 ### **Backend**
 
-- **Framework**: FastAPI (Python 3)
+- **Framework**: FastAPI (Python 3.10+)
 - **ORM**: SQLAlchemy
-- **Data Validation**: Pydantic
-- **Database**:
-  - **Local**: SQLite
-  - **Production**: PostgreSQL
+- **Database**: PostgreSQL (Production) / SQLite (Local)
+- **Testing**: Pytest & HTTPX
 
 ## 🚀 Getting Started
-
-### **Prerequisites**
-
-- Node.js (v18+)
-- Python (v3.10+)
 
 ### **1. Setup Backend**
 
 ```bash
 cd backend
-# Create a virtual environment
 python -m venv venv
-# Activate it
 .\venv\Scripts\Activate  # Windows
-source venv/bin/activate # Mac/Linux
+# or source venv/bin/activate on Mac/Linux
 
-# Install dependencies
 pip install -r requirements.txt
-
-# Run the API
 uvicorn main:app --reload
 ```
 
-The backend will be available at `http://localhost:8000`.
-
 ### **2. Setup Frontend**
 
-Go back to the root directory:
-
 ```bash
-# Install dependencies
+# In the root directory
 npm install
-
-# Set up environment variables
-# Create a .env.local file or use existing
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
-
-# Run the dev server
 npm run dev
 ```
 
@@ -75,37 +57,52 @@ Open `http://localhost:3000` to view the app!
 
 ## 🧪 Testing
 
-The project includes unit tests for both the backend API and frontend utility logic.
+The project is built with reliability in mind, featuring comprehensive unit tests.
 
 ### **Backend Tests**
 
-Uses `pytest` and `httpx` to verify API endpoints.
+Verifies API endpoints and database integrity.
 
 ```bash
 cd backend
-pip install pytest httpx
 pytest test_main.py
 ```
 
 ### **Frontend Tests**
 
-Utility functions for attendance calculation and formatting are tested using `Jest`.
+Validates core utility logic and data formatting.
 
 ```bash
-npm install --save-dev jest ts-jest @types/jest
 npm test
+```
+
+## 📂 Project Structure
+
+```text
+├── backend/            # FastAPI source code
+│   ├── main.py         # API entry point & routes
+│   ├── database.py     # SQLAlchemy configuration
+│   ├── schemas.py      # Pydantic data models
+│   └── test_main.py    # Backend unit tests
+├── src/                # Next.js frontend
+│   ├── app/            # App router pages & layouts
+│   ├── components/     # Reusable UI components
+│   └── lib/            # API client & utility logic
+├── public/             # Static assets
+└── jest.config.mjs     # Frontend test configuration
 ```
 
 ## ☁️ Deployment
 
 - **Frontend**: Hosted on [Vercel](https://vercel.com/)
-- **Backend & Database**: Hosted on [Render](https://render.com/)
+- **Backend**: Hosted on [Render](https://render.com/)
+- **Database**: Managed PostgreSQL instance
 
 ## 📝 Assumptions & Limitations
 
-- **No Auth**: For this demonstration version, authentication is not implemented. It is assumed the system is accessed by an admin.
-- **Single Slot Attendance**: Attendance is currently tracked as a binary status (Present/Absent) per day per employee.
-- **Persistent Storage**: Data persists in PostgreSQL on Render; however, local development uses a local `hrms.db` file (SQLite).
+- **Authentication**: For this demo, a mock admin profile is used.
+- **Attendance**: Binary status (Present/Absent) tracked per business day.
+- **Local Dev**: Uses SQLite (`hrms.db`) for zero-config local setup.
 
 ---
 
