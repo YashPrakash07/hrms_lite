@@ -1,9 +1,17 @@
 'use client';
 
-import { Users, UserCheck, UserX, Activity } from 'lucide-react';
+import { ReactNode } from 'react';
 
-export function StatCard({ title, value, icon, trend, color }: any) {
-    const colors: any = {
+interface StatCardProps {
+    title: string;
+    value: string | number;
+    icon: ReactNode;
+    trend: string;
+    color: 'blue' | 'green' | 'red' | 'purple';
+}
+
+export function StatCard({ title, value, icon, trend, color }: StatCardProps) {
+    const colors = {
         blue: { bg: '#eff6ff', text: '#3b82f6' },
         green: { bg: '#f0fdf4', text: '#22c55e' },
         red: { bg: '#fef2f2', text: '#ef4444' },

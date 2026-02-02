@@ -29,6 +29,16 @@ export default function Sidebar() {
                     );
                 })}
             </nav>
+
+            <div className={styles.footer}>
+                <div className={styles.userProfile}>
+                    <div className={styles.avatar}>YP</div>
+                    <div className={styles.userInfo}>
+                        <p className={styles.userName}>Yash</p>
+                        <p className={styles.userRole}>Admin</p>
+                    </div>
+                </div>
+            </div>
         </aside>
     );
 }

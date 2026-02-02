@@ -47,5 +47,49 @@
 
 .active {
   background-color: var(--accent);
-  color: var(--accent-foreground);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.footer {
+  margin-top: auto;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.userRole {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin: 0;
 }

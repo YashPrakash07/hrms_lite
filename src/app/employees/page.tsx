@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { Plus, Trash2, Search, User, Mail, Briefcase, Hash, MoreVertical, Filter, Eye, Edit2 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { fetchEmployees, createEmployee, deleteEmployee } from '@/lib/api';
+import { TableSkeleton } from '@/components/Skeleton';
+import EmptyState from '@/components/EmptyState';
 
 // Map snake_case to UI expected format (or just use snake_case directly, let's adapt UI to API for simplicity)
 type Employee = {
@@ -20,7 +22,7 @@ export default function EmployeesPage() {
     const [search, setSearch] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
-    // const [loading, setLoading] = useState(true); // unused for now
+    const [loading, setLoading] = useState(true);
 
     const [formData, setFormData] = useState({
         employee_id: '',
@@ -30,14 +32,14 @@ export default function EmployeesPage() {
     });
 
     const loadData = async () => {
-        // setLoading(true);
+        setLoading(true);
         try {
             const data = await fetchEmployees();
             setEmployees(data);
         } catch (e) {
             console.error(e);
         } finally {
-            // setLoading(false);
+            setLoading(false);
         }
     };
 
@@ -126,116 +128,134 @@ export default function EmployeesPage() {
                 </button>
             </div>
 
-            <div style={{
-                background: 'var(--card)',
-                borderRadius: 'var(--radius)',
-                border: '1px solid var(--border)',
-                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)',
-                overflow: 'hidden'
-            }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                    <thead style={{ background: 'var(--muted)', borderBottom: '1px solid var(--border)' }}>
-                        <tr>
-                            <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Name</th>
-                            <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ID</th>
-                            <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Role & Dept</th>
-                            <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
-                            <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filtered.map((emp, i) => (
-                            <tr key={emp.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.1s' }}
-                                onMouseOver={e => e.currentTarget.style.background = 'var(--muted)'}
-                                onMouseOut={e => e.currentTarget.style.background = 'transparent'}
-                            >
-                                <td style={{ padding: '1.25rem' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: `hsl(${i * 60}, 70%, 80%)`, color: `hsl(${i * 60}, 80%, 20%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.9rem' }}>
-                                            {emp.full_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: '600', color: 'var(--foreground)' }}>{emp.full_name}</div>
-                                            <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>{emp.email}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style={{ padding: '1.25rem', fontFamily: 'monospace', fontWeight: '500', color: 'var(--muted-foreground)' }}>{emp.employee_id}</td>
-                                <td style={{ padding: '1.25rem' }}>
-                                    <div style={{ fontWeight: '500' }}>Employee</div>
-                                    <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>{emp.department}</div>
-                                </td>
-                                <td style={{ padding: '1.25rem' }}>
-                                    <span style={{
-                                        display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                                        background: emp.is_active ? '#dcfce7' : '#f3f4f6',
-                                        color: emp.is_active ? '#166534' : '#374151',
-                                        padding: '0.25rem 0.75rem',
-                                        borderRadius: '999px',
-                                        fontSize: '0.75rem',
-                                        fontWeight: '700'
-                                    }}>
-                                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }}></span>
-                                        {emp.is_active ? 'Active' : 'Inactive'}
-                                    </span>
-                                </td>
-                                <td style={{ padding: '1.25rem', textAlign: 'right', position: 'relative' }}>
-                                    <div
-                                        style={{ position: 'relative', display: 'inline-block' }}
-                                        onMouseEnter={() => setActiveMenu(emp.id)}
-                                        onMouseLeave={() => setActiveMenu(null)}
-                                    >
-                                        <button style={{
-                                            background: activeMenu === emp.id ? 'var(--accent)' : 'transparent',
-                                            border: 'none',
-                                            color: activeMenu === emp.id ? 'var(--primary)' : 'var(--muted-foreground)',
-                                            cursor: 'pointer',
-                                            padding: '0.6rem',
-                                            borderRadius: '8px',
-                                            transition: 'all 0.2s ease'
-                                        }}>
-                                            <MoreVertical size={20} />
-                                        </button>
-
-                                        {activeMenu === emp.id && (
-                                            <div style={{
-                                                position: 'absolute',
-                                                right: '0',
-                                                top: '100%',
-                                                zIndex: 50,
-                                                minWidth: '160px',
-                                                background: 'var(--card)',
-                                                border: '1px solid var(--border)',
-                                                borderRadius: '12px',
-                                                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                                                padding: '0.5rem',
-                                                marginTop: '0.25rem',
-                                                animation: 'fadeInSlide 0.2s ease-out'
-                                            }}>
-                                                <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--foreground)', fontSize: '0.85rem', fontWeight: '500', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--secondary)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                                    <Eye size={16} /> View Profile
-                                                </button>
-                                                <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--foreground)', fontSize: '0.85rem', fontWeight: '500', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--secondary)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                                    <Edit2 size={16} /> Edit Details
-                                                </button>
-                                                <div style={{ height: '1px', background: 'var(--border)', margin: '0.4rem 0' }} />
-                                                <button
-                                                    onClick={() => handleDelete(emp.id)}
-                                                    style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--destructive)', fontSize: '0.85rem', fontWeight: '600', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }}
-                                                    onMouseEnter={e => e.currentTarget.style.background = '#fee2e2'}
-                                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                                >
-                                                    <Trash2 size={16} /> Delete
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </td>
+            {loading ? (
+                <TableSkeleton />
+            ) : employees.length === 0 ? (
+                <EmptyState
+                    icon={User}
+                    title="No Employees Yet"
+                    description="Start building your team by adding your first employee."
+                    action={() => setIsModalOpen(true)}
+                    actionLabel="Add Employee"
+                />
+            ) : filtered.length === 0 ? (
+                <EmptyState
+                    icon={Search}
+                    title="No results found"
+                    description={`We couldn't find any employees matching "${search}"`}
+                />
+            ) : (
+                <div style={{
+                    background: 'var(--card)',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--border)',
+                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)',
+                    overflow: 'hidden'
+                }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <thead style={{ background: 'var(--muted)', borderBottom: '1px solid var(--border)' }}>
+                            <tr>
+                                <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Name</th>
+                                <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ID</th>
+                                <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Role & Dept</th>
+                                <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                                <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {filtered.map((emp, i) => (
+                                <tr key={emp.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.1s' }}
+                                    onMouseOver={e => e.currentTarget.style.background = 'var(--muted)'}
+                                    onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                                >
+                                    <td style={{ padding: '1.25rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: `hsl(${i * 60}, 70%, 80%)`, color: `hsl(${i * 60}, 80%, 20%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.9rem' }}>
+                                                {emp.full_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                            </div>
+                                            <div>
+                                                <div style={{ fontWeight: '600', color: 'var(--foreground)' }}>{emp.full_name}</div>
+                                                <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>{emp.email}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '1.25rem', fontFamily: 'monospace', fontWeight: '500', color: 'var(--muted-foreground)' }}>{emp.employee_id}</td>
+                                    <td style={{ padding: '1.25rem' }}>
+                                        <div style={{ fontWeight: '500' }}>Employee</div>
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>{emp.department}</div>
+                                    </td>
+                                    <td style={{ padding: '1.25rem' }}>
+                                        <span style={{
+                                            display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                                            background: emp.is_active ? '#dcfce7' : '#f3f4f6',
+                                            color: emp.is_active ? '#166534' : '#374151',
+                                            padding: '0.25rem 0.75rem',
+                                            borderRadius: '999px',
+                                            fontSize: '0.75rem',
+                                            fontWeight: '700'
+                                        }}>
+                                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }}></span>
+                                            {emp.is_active ? 'Active' : 'Inactive'}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '1.25rem', textAlign: 'right', position: 'relative' }}>
+                                        <div
+                                            style={{ position: 'relative', display: 'inline-block' }}
+                                            onMouseEnter={() => setActiveMenu(emp.id)}
+                                            onMouseLeave={() => setActiveMenu(null)}
+                                        >
+                                            <button style={{
+                                                background: activeMenu === emp.id ? 'var(--accent)' : 'transparent',
+                                                border: 'none',
+                                                color: activeMenu === emp.id ? 'var(--primary)' : 'var(--muted-foreground)',
+                                                cursor: 'pointer',
+                                                padding: '0.6rem',
+                                                borderRadius: '8px',
+                                                transition: 'all 0.2s ease'
+                                            }}>
+                                                <MoreVertical size={20} />
+                                            </button>
+
+                                            {activeMenu === emp.id && (
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    right: '0',
+                                                    top: '100%',
+                                                    zIndex: 50,
+                                                    minWidth: '160px',
+                                                    background: 'var(--card)',
+                                                    border: '1px solid var(--border)',
+                                                    borderRadius: '12px',
+                                                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                                                    padding: '0.5rem',
+                                                    marginTop: '0.25rem',
+                                                    animation: 'fadeInSlide 0.2s ease-out'
+                                                }}>
+                                                    <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--foreground)', fontSize: '0.85rem', fontWeight: '500', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--secondary)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                        <Eye size={16} /> View Profile
+                                                    </button>
+                                                    <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--foreground)', fontSize: '0.85rem', fontWeight: '500', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--secondary)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                        <Edit2 size={16} /> Edit Details
+                                                    </button>
+                                                    <div style={{ height: '1px', background: 'var(--border)', margin: '0.4rem 0' }} />
+                                                    <button
+                                                        onClick={() => handleDelete(emp.id)}
+                                                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--destructive)', fontSize: '0.85rem', fontWeight: '600', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }}
+                                                        onMouseEnter={e => e.currentTarget.style.background = '#fee2e2'}
+                                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                                    >
+                                                        <Trash2 size={16} /> Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="New Employee">
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
