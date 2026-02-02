@@ -1,43 +1,76 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Trash2, Search, User, Mail, Briefcase, Hash, MoreVertical, Filter } from 'lucide-react';
 import Modal from '@/components/Modal';
-import { MOCK_EMPLOYEES, Employee } from '@/lib/mock-data';
+import { fetchEmployees, createEmployee, deleteEmployee } from '@/lib/api';
+
+// Map snake_case to UI expected format (or just use snake_case directly, let's adapt UI to API for simplicity)
+type Employee = {
+    id: number;
+    employee_id: string; // Changed from employeeId
+    full_name: string;   // Changed from fullName
+    email: string;
+    department: string;
+    is_active: boolean;  // Changed from status string to bool
+};
 
 export default function EmployeesPage() {
-    const [employees, setEmployees] = useState<Employee[]>(MOCK_EMPLOYEES);
+    const [employees, setEmployees] = useState<Employee[]>([]);
     const [search, setSearch] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    // const [loading, setLoading] = useState(true); // unused for now
+
     const [formData, setFormData] = useState({
-        employeeId: '',
-        fullName: '',
+        employee_id: '',
+        full_name: '',
         email: '',
-        department: ''
+        department: 'Engineering' // Default to avoid empty Select
     });
 
-    const filtered = employees.filter(e =>
-        e.fullName.toLowerCase().includes(search.toLowerCase()) ||
-        e.department.toLowerCase().includes(search.toLowerCase())
-    );
-
-    const handleDelete = (id: number) => {
-        if (confirm('Delete this employee record?')) {
-            setEmployees(prev => prev.filter(e => e.id !== id));
+    const loadData = async () => {
+        // setLoading(true);
+        try {
+            const data = await fetchEmployees();
+            setEmployees(data);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            // setLoading(false);
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    const filtered = employees.filter(e =>
+        e.full_name.toLowerCase().includes(search.toLowerCase()) ||
+        e.department.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const handleDelete = async (id: number) => {
+        if (confirm('Delete this employee record?')) {
+            try {
+                await deleteEmployee(id);
+                setEmployees(prev => prev.filter(e => e.id !== id));
+            } catch {
+                alert('Failed to delete');
+            }
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const newEmp: Employee = {
-            id: Math.random(),
-            ...formData,
-            status: 'Active',
-            role: 'New Hire'
-        };
-        setEmployees([newEmp, ...employees]);
-        setIsModalOpen(false);
-        setFormData({ employeeId: '', fullName: '', email: '', department: '' });
+        try {
+            const newEmp = await createEmployee(formData);
+            setEmployees([...employees, newEmp]);
+            setIsModalOpen(false);
+            setFormData({ employee_id: '', full_name: '', email: '', department: 'Engineering' });
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Failed to create';
+            alert(message);
+        }
     };
 
     return (
@@ -118,31 +151,31 @@ export default function EmployeesPage() {
                                 <td style={{ padding: '1.25rem' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                         <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: `hsl(${i * 60}, 70%, 80%)`, color: `hsl(${i * 60}, 80%, 20%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.9rem' }}>
-                                            {emp.fullName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                            {emp.full_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                                         </div>
                                         <div>
-                                            <div style={{ fontWeight: '600', color: 'var(--foreground)' }}>{emp.fullName}</div>
+                                            <div style={{ fontWeight: '600', color: 'var(--foreground)' }}>{emp.full_name}</div>
                                             <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>{emp.email}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td style={{ padding: '1.25rem', fontFamily: 'monospace', fontWeight: '500', color: 'var(--muted-foreground)' }}>{emp.employeeId}</td>
+                                <td style={{ padding: '1.25rem', fontFamily: 'monospace', fontWeight: '500', color: 'var(--muted-foreground)' }}>{emp.employee_id}</td>
                                 <td style={{ padding: '1.25rem' }}>
-                                    <div style={{ fontWeight: '500' }}>{emp.role}</div>
+                                    <div style={{ fontWeight: '500' }}>Employee</div>
                                     <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>{emp.department}</div>
                                 </td>
                                 <td style={{ padding: '1.25rem' }}>
                                     <span style={{
                                         display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                                        background: emp.status === 'Active' ? '#dcfce7' : '#f3f4f6',
-                                        color: emp.status === 'Active' ? '#166534' : '#374151',
+                                        background: emp.is_active ? '#dcfce7' : '#f3f4f6',
+                                        color: emp.is_active ? '#166534' : '#374151',
                                         padding: '0.25rem 0.75rem',
                                         borderRadius: '999px',
                                         fontSize: '0.75rem',
                                         fontWeight: '700'
                                     }}>
                                         <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }}></span>
-                                        {emp.status}
+                                        {emp.is_active ? 'Active' : 'Inactive'}
                                     </span>
                                 </td>
                                 <td style={{ padding: '1.25rem', textAlign: 'right' }}>
@@ -179,14 +212,14 @@ export default function EmployeesPage() {
                         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '600' }}>Employee ID</label>
                         <div style={{ position: 'relative' }}>
                             <Hash size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
-                            <input required type="text" placeholder="e.g. EMP-001" value={formData.employeeId} onChange={e => setFormData({ ...formData, employeeId: e.target.value })} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 3rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', background: 'var(--background)' }} />
+                            <input required type="text" placeholder="e.g. EMP-001" value={formData.employee_id} onChange={e => setFormData({ ...formData, employee_id: e.target.value })} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 3rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', background: 'var(--background)' }} />
                         </div>
                     </div>
                     <div>
                         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '600' }}>Full Name</label>
                         <div style={{ position: 'relative' }}>
                             <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
-                            <input required type="text" placeholder="Jane Doe" value={formData.fullName} onChange={e => setFormData({ ...formData, fullName: e.target.value })} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 3rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', background: 'var(--background)' }} />
+                            <input required type="text" placeholder="Jane Doe" value={formData.full_name} onChange={e => setFormData({ ...formData, full_name: e.target.value })} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 3rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', background: 'var(--background)' }} />
                         </div>
                     </div>
                     <div>

@@ -1,4 +1,4 @@
-import { getMockStats } from '@/lib/mock-data';
+import { fetchStats } from '@/lib/api';
 import { Users, UserCheck, UserX, Activity, Plus } from 'lucide-react';
 import { StatCard, QuickActionCard } from '@/components/DashboardWidgets';
 import Link from 'next/link';
@@ -6,7 +6,11 @@ import Link from 'next/link';
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const stats = await getMockStats();
+  const stats = await fetchStats().catch(() => ({
+    totalEmployees: 0,
+    presentToday: 0,
+    absentToday: 0
+  }));
 
   return (
     <div style={{ animation: 'fadeIn 0.5s ease-out' }}>

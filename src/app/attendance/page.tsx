@@ -1,33 +1,67 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
-import { MOCK_EMPLOYEES, MOCK_ATTENDANCE } from '@/lib/mock-data';
+import { fetchEmployees, fetchAttendance, markAttendance } from '@/lib/api';
+
+// Define types locally for now
+type Employee = {
+    id: number;
+    employee_id: string;
+    full_name: string;
+    department: string;
+};
+
+type AttendanceRecord = {
+    id: number;
+    employee_id: number;
+    date: string;
+    status: string;
+};
 
 export default function AttendancePage() {
     const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
-    const [attendance, setAttendance] = useState(MOCK_ATTENDANCE);
+    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+    // const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadData = async () => {
+            // setLoading(true);
+            try {
+                // ... setup
+                const [emps, atts] = await Promise.all([
+                    fetchEmployees(),
+                    fetchAttendance(date)
+                ]);
+                setEmployees(emps);
+                setAttendance(atts);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        loadData();
+    }, [date]);
 
     // Helper to check status
     const getStatus = (empId: number) => {
-        return attendance.find(a => a.employeeId === empId && a.date === date)?.status;
+        return attendance.find(a => a.employee_id === empId)?.status;
     };
 
-    const handleMark = (empId: number, status: 'PRESENT' | 'ABSENT') => {
-        // Remove existing for this date
-        const filtered = attendance.filter(a => !(a.employeeId === empId && a.date === date));
-        // Add new
-        setAttendance([...filtered, {
-            id: Math.random(),
-            employeeId: empId,
-            date,
-            status,
-            checkIn: status === 'PRESENT' ? '09:00 AM' : undefined
-        }]);
+    const handleMark = async (empId: number, status: 'PRESENT' | 'ABSENT') => {
+        try {
+            const updatedRecord = await markAttendance({ employee_id: empId, date, status });
+            // Update local state
+            const otherRecords = attendance.filter(a => a.employee_id !== empId);
+            setAttendance([...otherRecords, updatedRecord]);
+        } catch {
+            alert('Failed to mark attendance');
+        }
     };
 
     return (
         <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+            {/* ... header code ... */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', marginBottom: '2.5rem' }}>
                 <div>
                     <h1 style={{ fontSize: '2.25rem', fontWeight: '800', letterSpacing: '-0.025em' }}>Attendance</h1>
@@ -73,7 +107,7 @@ export default function AttendancePage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {MOCK_EMPLOYEES.map((emp, i) => {
+                        {employees.map((emp) => {
                             const status = getStatus(emp.id);
                             return (
                                 <tr key={emp.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.1s' }}
@@ -83,11 +117,11 @@ export default function AttendancePage() {
                                     <td style={{ padding: '1.25rem' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                             <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--accent)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.85rem' }}>
-                                                {emp.fullName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                                {emp.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                                             </div>
                                             <div>
-                                                <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{emp.fullName}</div>
-                                                <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{emp.role}</div>
+                                                <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{emp.full_name}</div>
+                                                <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{emp.department}</div>
                                             </div>
                                         </div>
                                     </td>
