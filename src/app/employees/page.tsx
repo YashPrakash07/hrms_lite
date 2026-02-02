@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Search, User, Mail, Briefcase, Hash, MoreVertical, Filter } from 'lucide-react';
+import { Plus, Trash2, Search, User, Mail, Briefcase, Hash, MoreVertical, Filter, Eye, Edit2 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { fetchEmployees, createEmployee, deleteEmployee } from '@/lib/api';
 
@@ -19,6 +19,7 @@ export default function EmployeesPage() {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [search, setSearch] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [activeMenu, setActiveMenu] = useState<number | null>(null);
     // const [loading, setLoading] = useState(true); // unused for now
 
     const [formData, setFormData] = useState({
@@ -178,27 +179,57 @@ export default function EmployeesPage() {
                                         {emp.is_active ? 'Active' : 'Inactive'}
                                     </span>
                                 </td>
-                                <td style={{ padding: '1.25rem', textAlign: 'right' }}>
-                                    <button
-                                        onClick={() => handleDelete(emp.id)}
-                                        style={{
-                                            background: 'transparent',
-                                            border: 'none',
-                                            color: 'var(--muted-foreground)',
-                                            cursor: 'pointer',
-                                            padding: '0.5rem',
-                                            borderRadius: '6px',
-                                            transition: 'color 0.2s'
-                                        }}
-                                        onMouseOver={e => e.currentTarget.style.color = 'var(--destructive)'}
-                                        onMouseOut={e => e.currentTarget.style.color = 'var(--muted-foreground)'}
-                                        title="Delete"
+                                <td style={{ padding: '1.25rem', textAlign: 'right', position: 'relative' }}>
+                                    <div
+                                        style={{ position: 'relative', display: 'inline-block' }}
+                                        onMouseEnter={() => setActiveMenu(emp.id)}
+                                        onMouseLeave={() => setActiveMenu(null)}
                                     >
-                                        <Trash2 size={18} />
-                                    </button>
-                                    <button style={{ background: 'transparent', border: 'none', color: 'var(--muted-foreground)', cursor: 'pointer', marginLeft: '0.5rem' }}>
-                                        <MoreVertical size={18} />
-                                    </button>
+                                        <button style={{
+                                            background: activeMenu === emp.id ? 'var(--accent)' : 'transparent',
+                                            border: 'none',
+                                            color: activeMenu === emp.id ? 'var(--primary)' : 'var(--muted-foreground)',
+                                            cursor: 'pointer',
+                                            padding: '0.6rem',
+                                            borderRadius: '8px',
+                                            transition: 'all 0.2s ease'
+                                        }}>
+                                            <MoreVertical size={20} />
+                                        </button>
+
+                                        {activeMenu === emp.id && (
+                                            <div style={{
+                                                position: 'absolute',
+                                                right: '0',
+                                                top: '100%',
+                                                zIndex: 50,
+                                                minWidth: '160px',
+                                                background: 'var(--card)',
+                                                border: '1px solid var(--border)',
+                                                borderRadius: '12px',
+                                                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                                                padding: '0.5rem',
+                                                marginTop: '0.25rem',
+                                                animation: 'fadeInSlide 0.2s ease-out'
+                                            }}>
+                                                <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--foreground)', fontSize: '0.85rem', fontWeight: '500', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--secondary)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                    <Eye size={16} /> View Profile
+                                                </button>
+                                                <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--foreground)', fontSize: '0.85rem', fontWeight: '500', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--secondary)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                    <Edit2 size={16} /> Edit Details
+                                                </button>
+                                                <div style={{ height: '1px', background: 'var(--border)', margin: '0.4rem 0' }} />
+                                                <button
+                                                    onClick={() => handleDelete(emp.id)}
+                                                    style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--destructive)', fontSize: '0.85rem', fontWeight: '600', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }}
+                                                    onMouseEnter={e => e.currentTarget.style.background = '#fee2e2'}
+                                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                                >
+                                                    <Trash2 size={16} /> Delete
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </td>
                             </tr>
                         ))}
