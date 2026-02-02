@@ -2,6 +2,7 @@ import { fetchStats, fetchRecentAttendance } from '@/lib/api';
 import { Users, UserCheck, UserX, Activity, Plus, CheckCircle, XCircle } from 'lucide-react';
 import { StatCard, QuickActionCard } from '@/components/DashboardWidgets';
 import Link from 'next/link';
+import { calculateAttendancePercentage, formatDate } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,7 +47,7 @@ export default async function Home() {
           title="Present Today"
           value={stats.presentToday}
           icon={<UserCheck size={24} />}
-          trend={`${stats.totalEmployees ? Math.round((stats.presentToday / stats.totalEmployees) * 100) : 0}% attendance rate`}
+          trend={`${calculateAttendancePercentage(stats.presentToday, stats.totalEmployees)}% attendance rate`}
           color="green"
         />
         <StatCard
@@ -86,7 +87,7 @@ export default async function Home() {
                   recentAttendance.map((rec: { id: number; employee_name: string; date: string; status: string }) => (
                     <tr key={rec.id} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '1rem', fontWeight: '600' }}>{rec.employee_name}</td>
-                      <td style={{ padding: '1rem', color: 'var(--muted-foreground)' }}>{new Date(rec.date).toLocaleDateString()}</td>
+                      <td style={{ padding: '1rem', color: 'var(--muted-foreground)' }}>{formatDate(rec.date)}</td>
                       <td style={{ padding: '1rem' }}>
                         <span style={{
                           display: 'inline-flex', alignItems: 'center', gap: '0.25rem',

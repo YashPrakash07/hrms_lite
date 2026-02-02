@@ -7,6 +7,8 @@ import { fetchEmployees, createEmployee, deleteEmployee } from '@/lib/api';
 import { TableSkeleton } from '@/components/Skeleton';
 import EmptyState from '@/components/EmptyState';
 
+import { getInitials } from '@/lib/utils';
+
 // Map snake_case to UI expected format
 type Employee = {
     id: number;
@@ -173,7 +175,7 @@ export default function EmployeesPage() {
                                     <td style={{ padding: '1.25rem' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                             <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: `hsl(${i * 60}, 70%, 80%)`, color: `hsl(${i * 60}, 80%, 20%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.9rem' }}>
-                                                {emp.full_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                                {getInitials(emp.full_name)}
                                             </div>
                                             <div>
                                                 <div style={{ fontWeight: '600', color: 'var(--foreground)' }}>{emp.full_name}</div>

@@ -73,6 +73,29 @@ npm run dev
 
 Open `http://localhost:3000` to view the app!
 
+## 🧪 Testing
+
+The project includes unit tests for both the backend API and frontend utility logic.
+
+### **Backend Tests**
+
+Uses `pytest` and `httpx` to verify API endpoints.
+
+```bash
+cd backend
+pip install pytest httpx
+pytest test_main.py
+```
+
+### **Frontend Tests**
+
+Utility functions for attendance calculation and formatting are tested using `Jest`.
+
+```bash
+npm install --save-dev jest ts-jest @types/jest
+npm test
+```
+
 ## ☁️ Deployment
 
 - **Frontend**: Hosted on [Vercel](https://vercel.com/)
