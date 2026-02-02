@@ -13,7 +13,11 @@ init_db()
 app = FastAPI(title="HRMS Lite API", version="0.1.0")
 
 # CORS
-origins = ["http://localhost:3000"]
+origins = [
+    "http://localhost:3000",
+    "https://hrms-lite.vercel.app",  # Add your deployed frontend URL here
+    "*" # Allow all for now to ensure it works
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
