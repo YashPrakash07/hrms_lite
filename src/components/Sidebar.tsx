@@ -16,7 +16,10 @@ export default function Sidebar() {
 
     return (
         <aside className={styles.sidebar}>
-            <div className={styles.logo}>HRMS Lite</div>
+            <div className={styles.logo}>
+                HRMS Lite
+                <span style={{ fontSize: '0.6rem', background: 'var(--primary)', color: 'white', padding: '0.1rem 0.4rem', borderRadius: '4px', marginLeft: '0.5rem', verticalAlign: 'middle', opacity: 0.8 }}>v2.0</span>
+            </div>
             <nav className={styles.nav}>
                 {navItems.map((item) => {
                     const Icon = item.icon;
