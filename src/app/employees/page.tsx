@@ -7,14 +7,15 @@ import { fetchEmployees, createEmployee, deleteEmployee } from '@/lib/api';
 import { TableSkeleton } from '@/components/Skeleton';
 import EmptyState from '@/components/EmptyState';
 
-// Map snake_case to UI expected format (or just use snake_case directly, let's adapt UI to API for simplicity)
+// Map snake_case to UI expected format
 type Employee = {
     id: number;
-    employee_id: string; // Changed from employeeId
-    full_name: string;   // Changed from fullName
+    employee_id: string;
+    full_name: string;
     email: string;
     department: string;
-    is_active: boolean;  // Changed from status string to bool
+    is_active: boolean;
+    total_present?: number;
 };
 
 export default function EmployeesPage() {
@@ -28,7 +29,7 @@ export default function EmployeesPage() {
         employee_id: '',
         full_name: '',
         email: '',
-        department: 'Engineering' // Default to avoid empty Select
+        department: 'Engineering'
     });
 
     const loadData = async () => {
@@ -159,6 +160,7 @@ export default function EmployeesPage() {
                                 <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ID</th>
                                 <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Role & Dept</th>
                                 <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                                <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Attendance</th>
                                 <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
                             </tr>
                         </thead>
@@ -197,6 +199,10 @@ export default function EmployeesPage() {
                                             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }}></span>
                                             {emp.is_active ? 'Active' : 'Inactive'}
                                         </span>
+                                    </td>
+                                    <td style={{ padding: '1.25rem' }}>
+                                        <div style={{ fontWeight: '700', color: 'var(--primary)', fontSize: '1.1rem' }}>{emp.total_present || 0}</div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: '500' }}>days present</div>
                                     </td>
                                     <td style={{ padding: '1.25rem', textAlign: 'right', position: 'relative' }}>
                                         <div

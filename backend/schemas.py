@@ -14,6 +14,7 @@ class EmployeeCreate(EmployeeBase):
 class Employee(EmployeeBase):
     id: int
     is_active: bool
+    total_present: Optional[int] = 0
 
     class Config:
         from_attributes = True

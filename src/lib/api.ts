@@ -58,3 +58,9 @@ export async function markAttendance(data: { employee_id: number; date: string; 
   }
   return res.json();
 }
+
+export async function fetchRecentAttendance() {
+  const res = await fetch(`${API_BASE_URL}/attendance/recent`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch recent attendance');
+  return res.json();
+}
