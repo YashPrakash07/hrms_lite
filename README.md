@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HRMS Lite 🚀
 
-## Getting Started
+HRMS Lite is a modern, lightweight Human Resource Management System designed for small teams to manage employee records and daily attendance with a premium user experience.
 
-First, run the development server:
+## ✨ Features
+
+- **Modern Dashboard**: Real-time stats on workforce presence and department overviews.
+- **Employee Management**: Full CRUD operations for team members with a sleek hover-reveal action menu.
+- **Attendance Tracking**: Simple, date-based attendance marking for "Present" and "Absent" statuses.
+- **Premium UX**: Smooth page transitions using Framer Motion and a high-end "Glassmorphic" interface.
+- **FastAPI Backend**: A high-performance Python backend with persistent PostgreSQL integration.
+
+## 🛠️ Tech Stack
+
+### **Frontend**
+
+- **Framework**: Next.js (App Router)
+- **Language**: TypeScript
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Styling**: Vanilla CSS (Premium Slate & Indigo Theme)
+
+### **Backend**
+
+- **Framework**: FastAPI (Python 3)
+- **ORM**: SQLAlchemy
+- **Data Validation**: Pydantic
+- **Database**:
+  - **Local**: SQLite
+  - **Production**: PostgreSQL
+
+## 🚀 Getting Started
+
+### **Prerequisites**
+
+- Node.js (v18+)
+- Python (v3.10+)
+
+### **1. Setup Backend**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd backend
+# Create a virtual environment
+python -m venv venv
+# Activate it
+.\venv\Scripts\Activate  # Windows
+source venv/bin/activate # Mac/Linux
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the API
+uvicorn main:app --reload
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The backend will be available at `http://localhost:8000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### **2. Setup Frontend**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Go back to the root directory:
 
-## Learn More
+```bash
+# Install dependencies
+npm install
 
-To learn more about Next.js, take a look at the following resources:
+# Set up environment variables
+# Create a .env.local file or use existing
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Run the dev server
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open `http://localhost:3000` to view the app!
 
-## Deploy on Vercel
+## ☁️ Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Frontend**: Hosted on [Vercel](https://vercel.com/)
+- **Backend & Database**: Hosted on [Render](https://render.com/)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📝 Assumptions & Limitations
+
+- **No Auth**: For this demonstration version, authentication is not implemented. It is assumed the system is accessed by an admin.
+- **Single Slot Attendance**: Attendance is currently tracked as a binary status (Present/Absent) per day per employee.
+- **Persistent Storage**: Data persists in PostgreSQL on Render; however, local development uses a local `hrms.db` file (SQLite).
+
+---
+
+Developed with ❤️ by [Yashprakash](https://github.com/Yashprakash07)
