@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Search, User, Mail, Briefcase, Hash, MoreVertical, Filter, Eye, Edit2 } from 'lucide-react';
+import { Plus, Trash2, Search, User, Mail, Briefcase, Hash, MoreVertical, Eye, Edit2 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { fetchEmployees, createEmployee, deleteEmployee } from '@/lib/api';
 import { TableSkeleton } from '@/components/Skeleton';
@@ -23,6 +23,8 @@ type Employee = {
 export default function EmployeesPage() {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [search, setSearch] = useState('');
+    const [selectedDept, setSelectedDept] = useState('All');
+    const [selectedStatus, setSelectedStatus] = useState('All');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
@@ -50,10 +52,22 @@ export default function EmployeesPage() {
         loadData();
     }, []);
 
-    const filtered = employees.filter(e =>
-        e.full_name.toLowerCase().includes(search.toLowerCase()) ||
-        e.department.toLowerCase().includes(search.toLowerCase())
-    );
+    const filtered = employees.filter(e => {
+        const matchesSearch =
+            e.full_name.toLowerCase().includes(search.toLowerCase()) ||
+            e.department.toLowerCase().includes(search.toLowerCase()) ||
+            e.email.toLowerCase().includes(search.toLowerCase()) ||
+            e.employee_id.toLowerCase().includes(search.toLowerCase());
+
+        const matchesDept = selectedDept === 'All' || e.department === selectedDept;
+        const matchesStatus = selectedStatus === 'All' ||
+            (selectedStatus === 'Active' && e.is_active) ||
+            (selectedStatus === 'Inactive' && !e.is_active);
+
+        return matchesSearch && matchesDept && matchesStatus;
+    });
+
+    const departments = ['All', 'Engineering', 'Sales', 'Marketing', 'HR', 'Design', 'Product'];
 
     const handleDelete = async (id: number) => {
         if (confirm('Delete this employee record?')) {
@@ -108,12 +122,12 @@ export default function EmployeesPage() {
                 </button>
             </div>
 
-            <div style={{ background: 'var(--card)', padding: '1.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', marginBottom: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <div style={{ position: 'relative', flex: 1 }}>
+            <div style={{ background: 'var(--card)', padding: '1.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ position: 'relative', flex: '1 1 300px' }}>
                     <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
                     <input
                         type="text"
-                        placeholder="Search by name or department..."
+                        placeholder="Search name, ID, or email..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         style={{
@@ -126,9 +140,68 @@ export default function EmployeesPage() {
                         }}
                     />
                 </div>
-                <button style={{ padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--muted-foreground)', cursor: 'pointer' }}>
-                    <Filter size={20} />
-                </button>
+
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <select
+                        value={selectedDept}
+                        onChange={(e) => setSelectedDept(e.target.value)}
+                        style={{
+                            padding: '0.75rem 1rem',
+                            borderRadius: 'var(--radius)',
+                            border: '1px solid var(--border)',
+                            background: 'var(--background)',
+                            color: selectedDept === 'All' ? 'var(--muted-foreground)' : 'var(--foreground)',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            fontWeight: '500'
+                        }}
+                    >
+                        {departments.map(dept => (
+                            <option key={dept} value={dept}>{dept === 'All' ? 'All Departments' : dept}</option>
+                        ))}
+                    </select>
+
+                    <select
+                        value={selectedStatus}
+                        onChange={(e) => setSelectedStatus(e.target.value)}
+                        style={{
+                            padding: '0.75rem 1rem',
+                            borderRadius: 'var(--radius)',
+                            border: '1px solid var(--border)',
+                            background: 'var(--background)',
+                            color: selectedStatus === 'All' ? 'var(--muted-foreground)' : 'var(--foreground)',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            fontWeight: '500'
+                        }}
+                    >
+                        <option value="All">All Status</option>
+                        <option value="Active">Active Only</option>
+                        <option value="Inactive">Inactive Only</option>
+                    </select>
+
+                    {(search || selectedDept !== 'All' || selectedStatus !== 'All') && (
+                        <button
+                            onClick={() => {
+                                setSearch('');
+                                setSelectedDept('All');
+                                setSelectedStatus('All');
+                            }}
+                            style={{
+                                padding: '0.75rem 1rem',
+                                border: 'none',
+                                background: 'transparent',
+                                color: 'var(--primary)',
+                                cursor: 'pointer',
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                                textDecoration: 'underline'
+                            }}
+                        >
+                            Reset
+                        </button>
+                    )}
+                </div>
             </div>
 
             {loading ? (
@@ -145,7 +218,13 @@ export default function EmployeesPage() {
                 <EmptyState
                     icon={Search}
                     title="No results found"
-                    description={`We couldn't find any employees matching "${search}"`}
+                    description={`We couldn't find any employees matching your filters.`}
+                    action={() => {
+                        setSearch('');
+                        setSelectedDept('All');
+                        setSelectedStatus('All');
+                    }}
+                    actionLabel="Clear all filters"
                 />
             ) : (
                 <div style={{
@@ -298,6 +377,8 @@ export default function EmployeesPage() {
                                 <option value="Sales">Sales</option>
                                 <option value="Marketing">Marketing</option>
                                 <option value="HR">HR</option>
+                                <option value="Design">Design</option>
+                                <option value="Product">Product</option>
                             </select>
                         </div>
                     </div>
