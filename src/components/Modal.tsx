@@ -14,14 +14,18 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true);
-        if (isOpen) {
+    }, []);
+
+    useEffect(() => {
+        if (isOpen && mounted) {
             document.body.style.overflow = 'hidden';
         }
         return () => {
             document.body.style.overflow = 'unset';
         }
-    }, [isOpen]);
+    }, [isOpen, mounted]);
 
     if (!isOpen || !mounted) return null;
 
