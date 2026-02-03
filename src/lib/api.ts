@@ -1,13 +1,13 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 export async function fetchStats() {
-  const res = await fetch(`${API_BASE_URL}/stats`, { cache: 'no-store' });
+  const res = await fetch(`${API_BASE_URL}/stats`, { next: { revalidate: 60 } });
   if (!res.ok) throw new Error('Failed to fetch stats');
   return res.json();
 }
 
 export async function fetchEmployees() {
-  const res = await fetch(`${API_BASE_URL}/employees`, { cache: 'no-store' });
+  const res = await fetch(`${API_BASE_URL}/employees`, { next: { revalidate: 30 } });
   if (!res.ok) throw new Error('Failed to fetch employees');
   return res.json();
 }
@@ -41,7 +41,7 @@ export async function deleteEmployee(id: number) {
 }
 
 export async function fetchAttendance(date: string) {
-  const res = await fetch(`${API_BASE_URL}/attendance?date=${date}`, { cache: 'no-store' });
+  const res = await fetch(`${API_BASE_URL}/attendance?date=${date}`, { next: { revalidate: 30 } });
   if (!res.ok) throw new Error('Failed to fetch attendance');
   return res.json();
 }
@@ -60,7 +60,7 @@ export async function markAttendance(data: { employee_id: number; date: string; 
 }
 
 export async function fetchRecentAttendance() {
-  const res = await fetch(`${API_BASE_URL}/attendance/recent`, { cache: 'no-store' });
+  const res = await fetch(`${API_BASE_URL}/attendance/recent`, { next: { revalidate: 10 } });
   if (!res.ok) throw new Error('Failed to fetch recent attendance');
   return res.json();
 }

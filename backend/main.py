@@ -58,12 +58,27 @@ def create_employee(employee: schemas.EmployeeCreate, db: Session = Depends(get_
 
 @app.get("/api/employees", response_model=List[schemas.Employee])
 def read_employees(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    employees = db.query(DBEmployee).offset(skip).limit(limit).all()
-    for emp in employees:
-        emp.total_present = db.query(DBAttendance).filter(
-            DBAttendance.employee_id == emp.id,
-            DBAttendance.status == 'PRESENT'
-        ).count()
+    from sqlalchemy import func
+    
+    # Efficiently get employees and their attendance count in one query
+    attendance_count_sub = db.query(
+        DBAttendance.employee_id,
+        func.count(DBAttendance.id).label('total_present')
+    ).filter(DBAttendance.status == 'PRESENT').group_by(DBAttendance.employee_id).subquery()
+
+    results = db.query(
+        DBEmployee,
+        attendance_count_sub.c.total_present
+    ).outerjoin(
+        attendance_count_sub,
+        DBEmployee.id == attendance_count_sub.c.employee_id
+    ).offset(skip).limit(limit).all()
+
+    # Format result to match schema
+    employees = []
+    for emp, total_present in results:
+        emp.total_present = total_present or 0
+        employees.append(emp)
     return employees
 
 @app.delete("/api/employees/{employee_id}")
@@ -105,14 +120,15 @@ def read_attendance(date: date_type, db: Session = Depends(get_db)):
 
 @app.get("/api/attendance/recent")
 def get_recent_attendance(db: Session = Depends(get_db)):
-    records = db.query(DBAttendance).order_by(DBAttendance.id.desc()).limit(5).all()
-    # Join manually or use relationship
+    # Use joinedload to fetch employee name in the same query
+    from sqlalchemy.orm import joinedload
+    records = db.query(DBAttendance).options(joinedload(DBAttendance.employee)).order_by(DBAttendance.id.desc()).limit(5).all()
+    
     result = []
     for r in records:
-        emp = db.query(DBEmployee).filter(DBEmployee.id == r.employee_id).first()
         result.append({
             "id": r.id,
-            "employee_name": emp.full_name if emp else "Unknown",
+            "employee_name": r.employee.full_name if r.employee else "Unknown",
             "date": r.date,
             "status": r.status
         })
