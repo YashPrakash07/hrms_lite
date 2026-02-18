@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { calculateAttendancePercentage, formatDate } from '@/lib/utils';
 import { Suspense } from 'react';
 import { CardSkeleton, TableSkeleton } from '@/components/Skeleton';
+import { motion } from 'framer-motion';
 
 // Separate async components for streaming
 async function StatsGrid() {
   const stats = await fetchStats().catch(() => ({ totalEmployees: 0, presentToday: 0, absentToday: 0 }));
+  const attendanceRate = calculateAttendancePercentage(stats.presentToday, stats.totalEmployees);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.75rem' }}>
@@ -16,15 +18,16 @@ async function StatsGrid() {
         title="Total Employees"
         value={stats.totalEmployees}
         icon={<Users size={24} />}
-        trend="+20% from last month"
+        trend="+2 newly joined"
         color="blue"
       />
       <StatCard
         title="Present Today"
         value={stats.presentToday}
         icon={<UserCheck size={24} />}
-        trend={`${calculateAttendancePercentage(stats.presentToday, stats.totalEmployees)}% attendance rate`}
+        trend={`${attendanceRate}% attendance rate`}
         color="green"
+        progress={attendanceRate}
       />
       <StatCard
         title="Absent Today"
@@ -32,14 +35,48 @@ async function StatsGrid() {
         icon={<UserX size={24} />}
         trend={`${stats.absentToday} employees on leave`}
         color="red"
+        progress={calculateAttendancePercentage(stats.absentToday, stats.totalEmployees)}
       />
       <StatCard
-        title="Active Projects"
-        value="12"
+        title="Productivity"
+        value="92%"
         icon={<Activity size={24} />}
-        trend="4 deadlines this week"
+        trend="High performance week"
         color="purple"
+        progress={92}
       />
+    </div>
+  );
+}
+
+function AttendanceChart() {
+  const data = [45, 52, 38, 65, 48, 59, 54];
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  return (
+    <div style={{ background: 'var(--card)', padding: '1.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', height: '200px', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+        <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>Attendance Volume</span>
+        <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>Last 7 Days</span>
+      </div>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', gap: '8px', paddingBottom: '1.5rem' }}>
+        {data.map((val, i) => (
+          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <motion.div
+              initial={{ height: 0 }}
+              animate={{ height: `${val}%` }}
+              transition={{ delay: i * 0.1, duration: 0.8 }}
+              style={{
+                width: '100%',
+                background: 'var(--primary)',
+                borderRadius: '4px 4px 0 0',
+                opacity: i === 6 ? 1 : 0.6
+              }}
+            />
+            <span style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)' }}>{days[i]}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -120,11 +157,15 @@ export default function Home() {
       </Suspense>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginTop: '3rem' }}>
-        <div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--foreground)' }}>Recent Activity</h3>
-          <Suspense fallback={<TableSkeleton />}>
-            <RecentActivityGrid />
-          </Suspense>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--foreground)' }}>Recent Activity</h3>
+            <Suspense fallback={<TableSkeleton />}>
+              <RecentActivityGrid />
+            </Suspense>
+          </div>
+
+          <AttendanceChart />
         </div>
 
         <div>

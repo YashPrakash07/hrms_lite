@@ -8,9 +8,10 @@ interface StatCardProps {
     icon: ReactNode;
     trend: string;
     color: 'blue' | 'green' | 'red' | 'purple';
+    progress?: number;
 }
 
-export function StatCard({ title, value, icon, trend, color }: StatCardProps) {
+export function StatCard({ title, value, icon, trend, color, progress }: StatCardProps) {
     const colors = {
         blue: { bg: '#eff6ff', text: '#3b82f6' },
         green: { bg: '#f0fdf4', text: '#22c55e' },
@@ -27,7 +28,9 @@ export function StatCard({ title, value, icon, trend, color }: StatCardProps) {
             border: '1px solid var(--border)',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)',
             transition: 'transform 0.2s',
-            cursor: 'default'
+            cursor: 'default',
+            position: 'relative',
+            overflow: 'hidden'
         }}
             onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
             onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -45,7 +48,21 @@ export function StatCard({ title, value, icon, trend, color }: StatCardProps) {
             <div>
                 <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem', fontWeight: '500' }}>{title}</p>
                 <p style={{ fontSize: '2rem', fontWeight: '800', lineHeight: '1.2', margin: '0.25rem 0' }}>{value}</p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '0.5rem' }}>{trend}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{trend}</p>
+                </div>
+
+                {progress !== undefined && (
+                    <div style={{ width: '100%', height: '4px', background: 'var(--muted)', borderRadius: '2px', marginTop: '1rem' }}>
+                        <div style={{
+                            width: `${progress}%`,
+                            height: '100%',
+                            background: theme.text,
+                            borderRadius: '2px',
+                            transition: 'width 1s ease-in-out'
+                        }} />
+                    </div>
+                )}
             </div>
         </div>
     )

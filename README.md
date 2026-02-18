@@ -4,25 +4,30 @@ HRMS Lite is a modern, lightweight Human Resource Management System designed for
 
 ## ✨ Features
 
-- **Modern Dashboard**: Real-time stats on workforce presence, cumulative attendance rates, and a "Recent Activity" feed.
-- **Employee Management**: Full CRUD operations for team members with a curated "Total Present Days" summary column.
-- **Attendance Tracking**: Smart, date-based attendance marking with immediate feedback and persistence.
-- **Intelligent UI**:
-  - **Skeletons & Empty States**: Robust handling of loading and no-data scenarios for a smooth user journey.
-  - **Global Error Handling**: Integrated error boundaries to capture and recover from backend failures gracefully.
-  - **Premium UX**: Glassmorphic interface with Framer Motion animations and a persistent "HR Admin" sidebar.
-- **Full-Stack Performance**: Fast and scalable Python backend paired with a type-safe Next.js frontend.
+- **Modern Dashboard**: Real-time stats with animated progress bars, live attendance volume charts, and a "Recent Activity" feed.
+- **Smart Data Sync**: Zero-latency updates across pages using Next.js Server Actions and cache revalidation (`cache: 'no-store'`).
+- **Employee Management**: Full CRUD operations with staggered row animations and initials-based avatars.
+- **Attendance Tracking**:
+  - **Dynamic Marking**: Real-time attendance status updates.
+  - **Bulk Actions**: "Mark All Present" feature for efficient morning check-ins.
+- **Improved Feedback**:
+  - **Professional Notifications**: Context-aware toast notifications using `sonner`.
+  - **Skeletons & Empty States**: Polished loading and no-data scenarios.
+- **Premium UX**:
+  - Framer Motion animations for staggered lists, entry transitions, and interactive sidebar elements.
+  - Responsive, glassmorphic design system.
 
 ## 🛠️ Tech Stack
 
 ### **Frontend**
 
-- **Framework**: Next.js 14+ (App Router)
+- **Framework**: Next.js 15+ (App Router)
 - **Language**: TypeScript
 - **Animations**: Framer Motion
+- **Notifications**: Sonner
 - **Icons**: Lucide React
 - **Testing**: Jest & React Testing Library
-- **Styling**: Modern Vanilla CSS (Custom Design System)
+- **Styling**: Modern Vanilla CSS (Custom tokens)
 
 ### **Backend**
 
@@ -80,14 +85,10 @@ npm test
 
 ```text
 ├── backend/            # FastAPI source code
-│   ├── main.py         # API entry point & routes
-│   ├── database.py     # SQLAlchemy configuration
-│   ├── schemas.py      # Pydantic data models
-│   └── test_main.py    # Backend unit tests
 ├── src/                # Next.js frontend
-│   ├── app/            # App router pages & layouts
-│   ├── components/     # Reusable UI components
-│   └── lib/            # API client & utility logic
+│   ├── app/            # App router pages, layouts & server actions
+│   ├── components/     # Reusable UI & Dashboard components
+│   └── lib/            # API client, revalidation logic & utils
 ├── public/             # Static assets
 └── jest.config.mjs     # Frontend test configuration
 ```
@@ -102,7 +103,7 @@ npm test
 
 - **Authentication**: For this demo, a mock admin profile is used.
 - **Attendance**: Binary status (Present/Absent) tracked per business day.
-- **Local Dev**: Uses SQLite (`hrms.db`) for zero-config local setup.
+- **Environment**: Optimized for zero-config local setup with SQLite.
 
 ---
 

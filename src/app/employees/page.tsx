@@ -10,6 +10,8 @@ import { TableSkeleton } from '@/components/Skeleton';
 import EmptyState from '@/components/EmptyState';
 
 import { getInitials } from '@/lib/utils';
+import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Map snake_case to UI expected format
 type Employee = {
@@ -79,25 +81,29 @@ export default function EmployeesPage() {
                 setEmployees(prev => prev.filter(e => e.id !== id));
                 router.refresh();
                 await revalidateDashboard();
+                toast.success('Employee deleted successfully');
             } catch {
-                alert('Failed to delete');
+                toast.error('Failed to delete employee');
             }
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        try {
-            const newEmp = await createEmployee(formData);
+        const promise = createEmployee(formData).then(async (newEmp) => {
             setEmployees([...employees, newEmp]);
             setIsModalOpen(false);
             setFormData({ employee_id: '', full_name: '', email: '', department: 'Engineering' });
             router.refresh();
             await revalidateDashboard();
-        } catch (error) {
-            const message = error instanceof Error ? error.message : 'Failed to create';
-            alert(message);
-        }
+            return newEmp;
+        });
+
+        toast.promise(promise, {
+            loading: 'Creating employee...',
+            success: 'Employee added successfully',
+            error: (err) => err.message || 'Failed to create'
+        });
     };
 
     return (
@@ -253,99 +259,108 @@ export default function EmployeesPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map((emp, i) => (
-                                <tr key={emp.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.1s' }}
-                                    onMouseOver={e => e.currentTarget.style.background = 'var(--muted)'}
-                                    onMouseOut={e => e.currentTarget.style.background = 'transparent'}
-                                >
-                                    <td style={{ padding: '1.25rem' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: `hsl(${i * 60}, 70%, 80%)`, color: `hsl(${i * 60}, 80%, 20%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.9rem' }}>
-                                                {getInitials(emp.full_name)}
-                                            </div>
-                                            <div>
-                                                <div style={{ fontWeight: '600', color: 'var(--foreground)' }}>{emp.full_name}</div>
-                                                <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>{emp.email}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '1.25rem', fontFamily: 'monospace', fontWeight: '500', color: 'var(--muted-foreground)' }}>{emp.employee_id}</td>
-                                    <td style={{ padding: '1.25rem' }}>
-                                        <div style={{ fontWeight: '500' }}>Employee</div>
-                                        <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>{emp.department}</div>
-                                    </td>
-                                    <td style={{ padding: '1.25rem' }}>
-                                        <span style={{
-                                            display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                                            background: emp.is_active ? '#dcfce7' : '#f3f4f6',
-                                            color: emp.is_active ? '#166534' : '#374151',
-                                            padding: '0.25rem 0.75rem',
-                                            borderRadius: '999px',
-                                            fontSize: '0.75rem',
-                                            fontWeight: '700'
-                                        }}>
-                                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }}></span>
-                                            {emp.is_active ? 'Active' : 'Inactive'}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '1.25rem' }}>
-                                        <div style={{ fontWeight: '700', color: 'var(--primary)', fontSize: '1.1rem' }}>{emp.total_present || 0}</div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: '500' }}>days present</div>
-                                    </td>
-                                    <td style={{ padding: '1.25rem', textAlign: 'right', position: 'relative' }}>
-                                        <div
-                                            style={{ position: 'relative', display: 'inline-block' }}
-                                            onMouseEnter={() => setActiveMenu(emp.id)}
-                                            onMouseLeave={() => setActiveMenu(null)}
-                                        >
-                                            <button style={{
-                                                background: activeMenu === emp.id ? 'var(--accent)' : 'transparent',
-                                                border: 'none',
-                                                color: activeMenu === emp.id ? 'var(--primary)' : 'var(--muted-foreground)',
-                                                cursor: 'pointer',
-                                                padding: '0.6rem',
-                                                borderRadius: '8px',
-                                                transition: 'all 0.2s ease'
-                                            }}>
-                                                <MoreVertical size={20} />
-                                            </button>
-
-                                            {activeMenu === emp.id && (
-                                                <div style={{
-                                                    position: 'absolute',
-                                                    right: '0',
-                                                    top: '100%',
-                                                    zIndex: 50,
-                                                    minWidth: '160px',
-                                                    background: 'var(--card)',
-                                                    border: '1px solid var(--border)',
-                                                    borderRadius: '12px',
-                                                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                                                    padding: '0.5rem',
-                                                    marginTop: '0.25rem',
-                                                    animation: 'fadeInSlide 0.2s ease-out'
-                                                }}>
-                                                    <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--foreground)', fontSize: '0.85rem', fontWeight: '500', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--secondary)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                                        <Eye size={16} /> View Profile
-                                                    </button>
-                                                    <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--foreground)', fontSize: '0.85rem', fontWeight: '500', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--secondary)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                                        <Edit2 size={16} /> Edit Details
-                                                    </button>
-                                                    <div style={{ height: '1px', background: 'var(--border)', margin: '0.4rem 0' }} />
-                                                    <button
-                                                        onClick={() => handleDelete(emp.id)}
-                                                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--destructive)', fontSize: '0.85rem', fontWeight: '600', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }}
-                                                        onMouseEnter={e => e.currentTarget.style.background = '#fee2e2'}
-                                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                                    >
-                                                        <Trash2 size={16} /> Delete
-                                                    </button>
+                            <AnimatePresence mode="popLayout">
+                                {filtered.map((emp, i) => (
+                                    <motion.tr
+                                        layout
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ delay: i * 0.05 }}
+                                        key={emp.id}
+                                        style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.1s' }}
+                                        onMouseOver={e => e.currentTarget.style.background = 'var(--muted)'}
+                                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                                    >
+                                        <td style={{ padding: '1.25rem' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: `hsl(${i * 60}, 70%, 80%)`, color: `hsl(${i * 60}, 80%, 20%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.9rem' }}>
+                                                    {getInitials(emp.full_name)}
                                                 </div>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                                                <div>
+                                                    <div style={{ fontWeight: '600', color: 'var(--foreground)' }}>{emp.full_name}</div>
+                                                    <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>{emp.email}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '1.25rem', fontFamily: 'monospace', fontWeight: '500', color: 'var(--muted-foreground)' }}>{emp.employee_id}</td>
+                                        <td style={{ padding: '1.25rem' }}>
+                                            <div style={{ fontWeight: '500' }}>Employee</div>
+                                            <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>{emp.department}</div>
+                                        </td>
+                                        <td style={{ padding: '1.25rem' }}>
+                                            <span style={{
+                                                display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                                                background: emp.is_active ? '#dcfce7' : '#f3f4f6',
+                                                color: emp.is_active ? '#166534' : '#374151',
+                                                padding: '0.25rem 0.75rem',
+                                                borderRadius: '999px',
+                                                fontSize: '0.75rem',
+                                                fontWeight: '700'
+                                            }}>
+                                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }}></span>
+                                                {emp.is_active ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '1.25rem' }}>
+                                            <div style={{ fontWeight: '700', color: 'var(--primary)', fontSize: '1.1rem' }}>{emp.total_present || 0}</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: '500' }}>days present</div>
+                                        </td>
+                                        <td style={{ padding: '1.25rem', textAlign: 'right', position: 'relative' }}>
+                                            <div
+                                                style={{ position: 'relative', display: 'inline-block' }}
+                                                onMouseEnter={() => setActiveMenu(emp.id)}
+                                                onMouseLeave={() => setActiveMenu(null)}
+                                            >
+                                                <button style={{
+                                                    background: activeMenu === emp.id ? 'var(--accent)' : 'transparent',
+                                                    border: 'none',
+                                                    color: activeMenu === emp.id ? 'var(--primary)' : 'var(--muted-foreground)',
+                                                    cursor: 'pointer',
+                                                    padding: '0.6rem',
+                                                    borderRadius: '8px',
+                                                    transition: 'all 0.2s ease'
+                                                }}>
+                                                    <MoreVertical size={20} />
+                                                </button>
+
+                                                {activeMenu === emp.id && (
+                                                    <div style={{
+                                                        position: 'absolute',
+                                                        right: '0',
+                                                        top: '100%',
+                                                        zIndex: 50,
+                                                        minWidth: '160px',
+                                                        background: 'var(--card)',
+                                                        border: '1px solid var(--border)',
+                                                        borderRadius: '12px',
+                                                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                                                        padding: '0.5rem',
+                                                        marginTop: '0.25rem',
+                                                        animation: 'fadeInSlide 0.2s ease-out'
+                                                    }}>
+                                                        <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--foreground)', fontSize: '0.85rem', fontWeight: '500', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--secondary)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                            <Eye size={16} /> View Profile
+                                                        </button>
+                                                        <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--foreground)', fontSize: '0.85rem', fontWeight: '500', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--secondary)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                            <Edit2 size={16} /> Edit Details
+                                                        </button>
+                                                        <div style={{ height: '1px', background: 'var(--border)', margin: '0.4rem 0' }} />
+                                                        <button
+                                                            onClick={() => handleDelete(emp.id)}
+                                                            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.8rem', border: 'none', background: 'transparent', color: 'var(--destructive)', fontSize: '0.85rem', fontWeight: '600', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' }}
+                                                            onMouseEnter={e => e.currentTarget.style.background = '#fee2e2'}
+                                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                                        >
+                                                            <Trash2 size={16} /> Delete
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </motion.tr>
+                                ))}
+                            </AnimatePresence>
                         </tbody>
                     </table>
                 </div>

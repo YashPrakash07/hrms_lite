@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Users, Calendar, LayoutDashboard } from 'lucide-react';
 import styles from './Sidebar.module.css';
+import { motion } from 'framer-motion';
 
 const navItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -22,9 +23,15 @@ export default function Sidebar() {
                     const Icon = item.icon;
                     const isActive = pathname === item.href;
                     return (
-                        <Link key={item.href} href={item.href} className={`${styles.link} ${isActive ? styles.active : ''}`}>
-                            <Icon size={20} />
-                            <span>{item.label}</span>
+                        <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
+                            <motion.div
+                                whileHover={{ x: 4 }}
+                                whileTap={{ scale: 0.98 }}
+                                className={`${styles.link} ${isActive ? styles.active : ''}`}
+                            >
+                                <Icon size={20} />
+                                <span>{item.label}</span>
+                            </motion.div>
                         </Link>
                     );
                 })}
