@@ -152,3 +152,5 @@ def get_stats(db: Session = Depends(get_db)):
         "presentToday": present_today,
         "absentToday": absent_today
     }
+
+
