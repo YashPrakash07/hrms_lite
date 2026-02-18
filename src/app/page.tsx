@@ -6,6 +6,7 @@ import { calculateAttendancePercentage, formatDate } from '@/lib/utils';
 import { Suspense } from 'react';
 import { CardSkeleton, TableSkeleton } from '@/components/Skeleton';
 import AttendanceChart from '@/components/AttendanceChart';
+import styles from './Dashboard.module.css';
 
 // Separate async components for streaming
 async function StatsGrid() {
@@ -96,12 +97,12 @@ async function RecentActivityGrid() {
 export default function Home() {
   return (
     <div>
-      <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
+      <header className={styles.header} style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
         <div>
           <h1 style={{ fontSize: '2.25rem', fontWeight: '800', color: 'var(--foreground)', letterSpacing: '-0.025em' }}>Dashboard</h1>
           <p style={{ color: 'var(--muted-foreground)', marginTop: '0.5rem', fontSize: '1.05rem' }}>Overview of your workforce today.</p>
         </div>
-        <Link href="/employees" style={{
+        <Link href="/employees" className={styles.headerLink} style={{
           background: 'var(--primary)',
           color: 'white',
           textDecoration: 'none',
@@ -125,7 +126,7 @@ export default function Home() {
         <StatsGrid />
       </Suspense>
 
-      <div className="dashboard-grid">
+      <div className={styles.dashboardGrid}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--foreground)' }}>Recent Activity</h3>
@@ -149,20 +150,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        .dashboard-grid {
-          display: grid;
-          grid-template-columns: 2fr 1fr;
-          gap: 2rem;
-          margin-top: 3rem;
-        }
-        @media (max-width: 1024px) {
-          .dashboard-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </div>
   );
 }
