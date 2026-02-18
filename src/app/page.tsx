@@ -125,7 +125,7 @@ export default function Home() {
         <StatsGrid />
       </Suspense>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginTop: '3rem' }}>
+      <div className="dashboard-grid">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--foreground)' }}>Recent Activity</h3>
@@ -149,6 +149,20 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          gap: 2rem;
+          margin-top: 3rem;
+        }
+        @media (max-width: 1024px) {
+          .dashboard-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </div>
   );
 }

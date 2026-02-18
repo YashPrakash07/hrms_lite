@@ -9,6 +9,24 @@
   left: 0;
   top: 0;
   z-index: 50;
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+.sidebarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
 }
 
 .logo {
@@ -17,8 +35,21 @@
   padding: 2rem;
   color: var(--primary);
   letter-spacing: -0.05em;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 1rem;
+}
+
+.closeBtn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 1rem;
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 1024px) {
+  .closeBtn {
+    display: block;
+  }
 }
 
 .nav {

@@ -99,12 +99,12 @@ export default function AttendancePage() {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', marginBottom: '2.5rem' }}>
+            <div className="attendance-header">
                 <div>
                     <h1 style={{ fontSize: '2.25rem', fontWeight: '800', letterSpacing: '-0.025em' }}>Attendance</h1>
                     <p style={{ color: 'var(--muted-foreground)', marginTop: '0.5rem', fontSize: '1.05rem' }}>Track daily attendance and work hours.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div className="attendance-actions">
                     <button
                         onClick={handleMarkAllPresent}
                         style={{
@@ -117,12 +117,13 @@ export default function AttendancePage() {
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.5rem'
+                            gap: '0.5rem',
+                            flex: '1'
                         }}>
                         <CheckCircle size={16} color="var(--primary)" />
                         Mark All Present
                     </button>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--card)', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--card)', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', flex: '1', justifyContent: 'center' }}>
                         <button style={{ padding: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)' }}><ChevronLeft size={20} /></button>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0 1rem', borderLeft: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}>
                             <CalendarIcon size={18} color='var(--primary)' />
@@ -137,7 +138,8 @@ export default function AttendancePage() {
                                     color: 'var(--foreground)',
                                     outline: 'none',
                                     fontSize: '0.95rem',
-                                    fontWeight: '600'
+                                    fontWeight: '600',
+                                    width: '120px'
                                 }}
                             />
                         </div>
@@ -155,14 +157,8 @@ export default function AttendancePage() {
                     description="You need to add employees before you can track their attendance."
                 />
             ) : (
-                <div style={{
-                    background: 'var(--card)',
-                    borderRadius: 'var(--radius)',
-                    border: '1px solid var(--border)',
-                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)',
-                    overflow: 'hidden'
-                }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <div className="table-responsive">
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
                         <thead style={{ background: 'var(--muted)', borderBottom: '1px solid var(--border)' }}>
                             <tr>
                                 <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Employee</th>
@@ -272,6 +268,41 @@ export default function AttendancePage() {
                     </table>
                 </div>
             )}
+            <style jsx>{`
+                .attendance-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+                    margin-bottom: 2.5rem;
+                    gap: 1.5rem;
+                }
+                .attendance-actions {
+                    display: flex;
+                    gap: 1rem;
+                    align-items: center;
+                }
+                .table-responsive {
+                    background: var(--card);
+                    border-radius: var(--radius);
+                    border: 1px solid var(--border);
+                    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+                    overflow-x: auto;
+                }
+                @media (max-width: 768px) {
+                    .attendance-header {
+                        flex-direction: column;
+                        align-items: flex-start;
+                    }
+                    .attendance-actions {
+                        width: 100%;
+                        flex-direction: column;
+                    }
+                    .attendance-actions > button,
+                    .attendance-actions > div {
+                        width: 100% !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

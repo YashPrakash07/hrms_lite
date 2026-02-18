@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
 import BackendPrimer from "@/components/BackendPrimer";
 import { Toaster } from 'sonner';
+import MainLayout from "@/components/MainLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,20 +22,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <Toaster position="top-right" richColors />
         <BackendPrimer />
-        <div style={{ display: 'flex', minHeight: '100vh' }}>
-          <Sidebar />
-          <main style={{
-            marginLeft: '250px',
-            flex: 1,
-            padding: '2rem',
-            backgroundColor: 'var(--background)',
-            overflowX: 'hidden'
-          }}>
-            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-              {children}
-            </div>
-          </main>
-        </div>
+        <MainLayout>
+          {children}
+        </MainLayout>
       </body>
     </html>
   );

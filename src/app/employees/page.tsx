@@ -108,8 +108,8 @@ export default function EmployeesPage() {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', marginBottom: '2.5rem' }}>
-                <div>
+            <div className="page-header">
+                <div className="page-header-text">
                     <h1 style={{ fontSize: '2.25rem', fontWeight: '800', letterSpacing: '-0.025em' }}>Employees</h1>
                     <p style={{ color: 'var(--muted-foreground)', marginTop: '0.5rem', fontSize: '1.05rem' }}>Manage your team members and roles.</p>
                 </div>
@@ -135,7 +135,7 @@ export default function EmployeesPage() {
                 </button>
             </div>
 
-            <div style={{ background: 'var(--card)', padding: '1.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+            <div className="filter-bar">
                 <div style={{ position: 'relative', flex: '1 1 300px' }}>
                     <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
                     <input
@@ -240,14 +240,8 @@ export default function EmployeesPage() {
                     actionLabel="Clear all filters"
                 />
             ) : (
-                <div style={{
-                    background: 'var(--card)',
-                    borderRadius: 'var(--radius)',
-                    border: '1px solid var(--border)',
-                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)',
-                    overflow: 'hidden'
-                }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <div className="table-responsive">
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
                         <thead style={{ background: 'var(--muted)', borderBottom: '1px solid var(--border)' }}>
                             <tr>
                                 <th style={{ padding: '1.25rem', fontWeight: '600', fontSize: '0.85rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Name</th>
@@ -410,6 +404,48 @@ export default function EmployeesPage() {
                     </div>
                 </form>
             </Modal>
+            <style jsx>{`
+                .page-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+                    margin-bottom: 2.5rem;
+                    gap: 1.5rem;
+                }
+                .filter-bar {
+                    background: var(--card);
+                    padding: 1.5rem;
+                    border-radius: var(--radius);
+                    border: 1px solid var(--border);
+                    margin-bottom: 1.5rem;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 1rem;
+                    align-items: center;
+                }
+                .table-responsive {
+                    background: var(--card);
+                    border-radius: var(--radius);
+                    border: 1px solid var(--border);
+                    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+                    overflow-x: auto;
+                }
+                @media (max-width: 768px) {
+                    .page-header {
+                        flex-direction: column;
+                        align-items: flex-start;
+                    }
+                    .filter-bar {
+                        padding: 1rem;
+                    }
+                    .filter-bar > div {
+                        width: 100%;
+                    }
+                    .filter-bar select {
+                        flex: 1;
+                    }
+                }
+            `}</style>
         </div>
     );
 }
