@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { fetchEmployees, fetchAttendance, markAttendance } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { revalidateDashboard } from '@/lib/actions';
 import { TableSkeleton } from '@/components/Skeleton';
 import EmptyState from '@/components/EmptyState';
 
@@ -26,6 +28,7 @@ export default function AttendancePage() {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         const loadData = async () => {
@@ -57,6 +60,8 @@ export default function AttendancePage() {
             // Update local state
             const otherRecords = attendance.filter(a => a.employee_id !== empId);
             setAttendance([...otherRecords, updatedRecord]);
+            router.refresh();
+            await revalidateDashboard();
         } catch {
             alert('Failed to mark attendance');
         }

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { Plus, Trash2, Search, User, Mail, Briefcase, Hash, MoreVertical, Eye, Edit2 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { fetchEmployees, createEmployee, deleteEmployee } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { revalidateDashboard } from '@/lib/actions';
 import { TableSkeleton } from '@/components/Skeleton';
 import EmptyState from '@/components/EmptyState';
 
@@ -28,6 +30,7 @@ export default function EmployeesPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     const [formData, setFormData] = useState({
         employee_id: '',
@@ -74,6 +77,8 @@ export default function EmployeesPage() {
             try {
                 await deleteEmployee(id);
                 setEmployees(prev => prev.filter(e => e.id !== id));
+                router.refresh();
+                await revalidateDashboard();
             } catch {
                 alert('Failed to delete');
             }
@@ -87,6 +92,8 @@ export default function EmployeesPage() {
             setEmployees([...employees, newEmp]);
             setIsModalOpen(false);
             setFormData({ employee_id: '', full_name: '', email: '', department: 'Engineering' });
+            router.refresh();
+            await revalidateDashboard();
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Failed to create';
             alert(message);
